@@ -189,13 +189,13 @@ export class Store<T = any> {
   /**
    * Emits an event to all registered listeners for a specific event type
    * @param event - The type of event to emit ('change' or 'error')
-   * @param data - The data to emit with the event
+   * @param detail - The detail to emit with the event
    */
-  emit(event: StoreEvent, data: any) {
+  emit(event: StoreEvent, detail: any) {
     const listeners = this.eventListeners[event];
     if (listeners && listeners.length > 0) {
       // Create a custom event with the data
-      const customEvent = new CustomEvent(event, { detail: data });
+      const customEvent = new CustomEvent(event, { detail });
       listeners.forEach((callback) => callback(customEvent));
     }
   }

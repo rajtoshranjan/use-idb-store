@@ -27,3 +27,30 @@ export async function idbRequestToPromise<T>(request: IDBRequest): Promise<T> {
     });
   });
 }
+
+/**
+ * Safely executes an async operation with error handling
+ * @template T The type of the result that will be returned by the operation
+ * @param fn The async function to execute
+ * @returns A Promise that resolves with the result or null if an error occurs
+ */
+export async function safeCall<T>(fn: () => Promise<T>): Promise<T | null> {
+  try {
+    return await fn();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Safely executes an async operation that returns void with error handling
+ * @param fn The async function to execute
+ * @returns A Promise that resolves to void, silently handling any errors
+ */
+export async function safeVoidCall(fn: () => Promise<unknown>): Promise<void> {
+  try {
+    await fn();
+  } catch {
+    // Silent fail
+  }
+}

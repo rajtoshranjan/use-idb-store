@@ -5,6 +5,7 @@ import {
   IndexedDbStoreMutations,
   IndexedDbStoreParams,
 } from "./types";
+import { safeCall, safeVoidCall } from "./helpers";
 
 export const useIndexedDbStore = <T,>(
   name: string,
@@ -46,6 +47,12 @@ export const useIndexedDbStore = <T,>(
       forceUpdate({});
     };
 
+    const handleError = (err: unknown) => {
+      errorRef.current = err instanceof Error ? err : new Error(String(err));
+      isLoadingRef.current = false;
+      forceUpdate({});
+    };
+
     // Initial load.
     loadData().then(() => {
       isReadyRef.current = true;
@@ -53,68 +60,34 @@ export const useIndexedDbStore = <T,>(
     });
 
     storeRef.current.on("change", loadData);
+    storeRef.current.on("error", handleError);
 
     return () => {
       // TODO: Unsubscribe from changes.
       // storeRef.current?.off("change", loadData);
+      // storeRef.current?.off("error", handleError);
     };
   }, []);
 
   // Handlers.
-  const getValue = async (id: string) => {
-    if (!storeRef.current) return null;
-    return storeRef.current.getItem(id) ?? valuesRef.current[id] ?? null;
-  };
-
-  const addValue = async (id: string, value: T) => {
-    if (!storeRef.current) return;
-
-    try {
-      await storeRef.current.addItem(id, value);
-      // setValues((prev) => ({ ...prev, [id]: value }));
-    } catch (err) {
-      console.error(`Error setting value for ID ${id}:`, err);
-      errorRef.current = err instanceof Error ? err : new Error(String(err));
-    }
-  };
-
-  const deleteValue = async (id: string) => {
-    if (!storeRef.current) return;
-
-    try {
-      await storeRef.current.deleteItem(id);
-    } catch (err) {
-      console.error(`Error deleting value for ID ${id}:`, err);
-      errorRef.current = err instanceof Error ? err : new Error(String(err));
-    }
-  };
-
-  const updateValue = async (id: string, value: Partial<T>) => {
-    if (!storeRef.current) return;
-    try {
-      await storeRef.current.updateItem(id, value);
-    } catch (err) {
-      console.error(`Error updating value for ID ${id}:`, err);
-      errorRef.current = err instanceof Error ? err : new Error(String(err));
-    }
-  };
-
-  const addOrUpdateValue = async (id: string, value: T) => {
-    if (!storeRef.current) return;
-    try {
-      await storeRef.current.addOrUpdateItem(id, value);
-    } catch (err) {
-      console.error(`Error adding or updating value for ID ${id}:`, err);
-      errorRef.current = err instanceof Error ? err : new Error(String(err));
-    }
-  };
-
   const mutations: IndexedDbStoreMutations<T> = {
-    getValue,
-    addValue,
-    addOrUpdateValue,
-    deleteValue,
-    updateValue,
+    getValue: async (id: string) =>
+      safeCall(async () => {
+        const storeValue = await storeRef.current!.getItem(id);
+        return storeValue ?? valuesRef.current[id] ?? null;
+      }),
+
+    addValue: (id: string, value: T) =>
+      safeVoidCall(() => storeRef.current!.addItem(id, value)),
+
+    deleteValue: (id: string) =>
+      safeVoidCall(() => storeRef.current!.deleteItem(id)),
+
+    updateValue: (id: string, value: Partial<T>) =>
+      safeVoidCall(() => storeRef.current!.updateItem(id, value)),
+
+    addOrUpdateValue: (id: string, value: T) =>
+      safeVoidCall(() => storeRef.current!.addOrUpdateItem(id, value)),
   };
 
   return {
