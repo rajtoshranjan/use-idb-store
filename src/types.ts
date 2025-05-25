@@ -10,6 +10,7 @@ export type IndexedDbStore<T> = {
   values: Record<string, T>;
   mutations: IndexedDbStoreMutations<T>;
   isLoading: boolean;
+  isReady: boolean;
   error: Error | null;
 };
 

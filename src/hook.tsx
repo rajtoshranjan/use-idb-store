@@ -15,9 +15,10 @@ export const useIndexedDbStore = <T,>(
   const [, forceUpdate] = useState({});
 
   // Refs.
-  const valuesRef = useRef<Record<string, T>>({});
   const storeRef = useRef<Store<T> | null>(null);
+  const valuesRef = useRef<Record<string, T>>({});
   const isLoadingRef = useRef(true);
+  const isReadyRef = useRef(false);
   const errorRef = useRef<Error | null>(null);
 
   // useEffect.
@@ -47,6 +48,8 @@ export const useIndexedDbStore = <T,>(
 
     // Initial load.
     loadData();
+    isReadyRef.current = true;
+    forceUpdate({});
 
     storeRef.current.on("change", loadData);
 
@@ -118,5 +121,6 @@ export const useIndexedDbStore = <T,>(
     mutations,
     isLoading: isLoadingRef.current,
     error: errorRef.current,
+    isReady: isReadyRef.current,
   };
 };
