@@ -38,7 +38,8 @@ import { useIndexedDbStore } from "use-idb-store";
 
 function TodoApp() {
   // Initialize the store with a name
-  const { values, mutations, isLoading, error } = useIndexedDbStore("todos");
+  const { values, mutations, isLoading, isReady, error } =
+    useIndexedDbStore("todos");
 
   // Access your persisted data
   const todos = Object.values(values);
@@ -108,7 +109,8 @@ An object with the following properties:
   - `updateValue(id, partialValue)`: Update part of an existing value.
   - `deleteValue(id)`: Delete a value by key.
   - `addOrUpdateValue(id, value)`: Add a value or update it if it already exists.
-- `isLoading` (boolean): Whether the store is currently being loaded.
+- `isLoading` (boolean): Indicates if the store is currently in a loading state, which occurs during initial data fetch from IndexedDB or refetching the data after any mutation.
+- `isReady` (boolean): Indicates if the store has been fully initialized and synchronized with IndexedDB, meaning all initial data has been loaded and the store is ready to perform operations. This flag becomes true only after the initial successful data load.
 - `error` (Error | null): Any error that occurred during store operations.
 
 ## Advanced Usage
