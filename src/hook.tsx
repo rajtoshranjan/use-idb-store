@@ -47,14 +47,15 @@ export const useIndexedDbStore = <T,>(
     };
 
     // Initial load.
-    loadData();
-    isReadyRef.current = true;
-    forceUpdate({});
+    loadData().then(() => {
+      isReadyRef.current = true;
+      forceUpdate({});
+    });
 
     storeRef.current.on("change", loadData);
 
     return () => {
-      // HACK: This is not working.
+      // TODO: Unsubscribe from changes.
       // storeRef.current?.off("change", loadData);
     };
   }, []);
