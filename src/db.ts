@@ -17,22 +17,16 @@ export class DB {
   }
 
   private async getCurrentDatabaseVersion(): Promise<number> {
-    return new Promise((resolve, reject) => {
-      // Try to open database without specifying version to get current version
+    try {
       const request = indexedDB.open("use-idb-store");
-
-      request.onsuccess = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        const currentVersion = db.version;
-        db.close();
-        resolve(currentVersion);
-      };
-
-      request.onerror = (event) => {
-        // Database doesn't exist yet, start with version 1
-        resolve(1);
-      };
-    });
+      const db = await idbRequestToPromise<IDBDatabase>(request);
+      const currentVersion = db.version;
+      db.close();
+      return currentVersion;
+    } catch {
+      // Database doesn't exist yet, start with version 1
+      return 1;
+    }
   }
 
   private async openDatabase(): Promise<IDBDatabase> {
@@ -82,52 +76,37 @@ export class DB {
   }
 
   private async initializeDatabase(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open("use-idb-store", this.version);
+    const request = indexedDB.open("use-idb-store", this.version);
 
-      request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBOpenDBRequest).result;
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
 
-        // Create all registered stores
-        this.stores.forEach((schema, name) => {
-          if (!db.objectStoreNames.contains(name)) {
-            try {
-              db.createObjectStore(name, schema);
-            } catch (error) {
-              console.error(`Error creating store ${name}:`, error);
-              throw error;
-            }
+      // Create all registered stores
+      this.stores.forEach((schema, name) => {
+        if (!db.objectStoreNames.contains(name)) {
+          try {
+            db.createObjectStore(name, schema);
+          } catch (error) {
+            console.error(`Error creating store ${name}:`, error);
+            throw error;
           }
-        });
-      };
-
-      request.onsuccess = (event) => {
-        this.indexedDB = (event.target as IDBOpenDBRequest).result;
-        resolve(this.indexedDB);
-      };
-
-      request.onerror = (event) => {
-        const target = event.target as IDBRequest;
-        const error = target.error;
-        console.error("Database opening failed:", error);
-
-        if (error) {
-          reject(
-            new Error(
-              `Failed to open database: ${error.name} - ${error.message}`
-            )
-          );
-        } else {
-          reject(new Error("Failed to open database with unknown error"));
         }
-      };
+      });
+    };
 
-      request.onblocked = (event) => {
-        console.warn(
-          "Database opening blocked. Close other tabs/windows using this database."
-        );
-      };
-    });
+    request.onblocked = () => {
+      console.warn(
+        "Database opening blocked. Close other tabs/windows using this database."
+      );
+    };
+
+    try {
+      this.indexedDB = await idbRequestToPromise<IDBDatabase>(request);
+      return this.indexedDB;
+    } catch (error) {
+      console.error("Database opening failed:", error);
+      throw error;
+    }
   }
 
   async createStore(name: string, schema?: IDBObjectStoreParameters) {
@@ -155,7 +134,7 @@ export class DB {
 
   async clearStore(name: string) {
     const store = await this.getStore(name);
-    store.clear();
+    await idbRequestToPromise(store.clear());
   }
 
   async deleteStore(name: string) {
@@ -173,52 +152,35 @@ export class DB {
       }
       this.version++;
 
-      // Reopen database with custom upgrade logic for deletion
-      return new Promise<void>((resolve, reject) => {
-        const request = indexedDB.open("use-idb-store", this.version);
+      const request = indexedDB.open("use-idb-store", this.version);
 
-        request.onupgradeneeded = (event) => {
-          const db = (event.target as IDBOpenDBRequest).result;
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
 
-          // Delete the store if it exists
-          if (db.objectStoreNames.contains(name)) {
-            db.deleteObjectStore(name);
-          }
+        // Delete the store if it exists
+        if (db.objectStoreNames.contains(name)) {
+          db.deleteObjectStore(name);
+        }
 
-          // Recreate remaining stores that should exist
-          this.stores.forEach((schema, storeName) => {
-            if (!db.objectStoreNames.contains(storeName)) {
-              try {
-                db.createObjectStore(storeName, schema);
-              } catch (error) {
-                console.error(`Error recreating store ${storeName}:`, error);
-                throw error;
-              }
+        // Recreate remaining stores that should exist
+        this.stores.forEach((schema, storeName) => {
+          if (!db.objectStoreNames.contains(storeName)) {
+            try {
+              db.createObjectStore(storeName, schema);
+            } catch (error) {
+              console.error(`Error recreating store ${storeName}:`, error);
+              throw error;
             }
-          });
-        };
-
-        request.onsuccess = (event) => {
-          this.indexedDB = (event.target as IDBOpenDBRequest).result;
-          resolve();
-        };
-
-        request.onerror = (event) => {
-          const target = event.target as IDBRequest;
-          const error = target.error;
-          console.error("Database update failed during store deletion:", error);
-
-          if (error) {
-            reject(
-              new Error(
-                `Failed to delete store: ${error.name} - ${error.message}`
-              )
-            );
-          } else {
-            reject(new Error("Failed to delete store with unknown error"));
           }
-        };
-      });
+        });
+      };
+
+      try {
+        this.indexedDB = await idbRequestToPromise<IDBDatabase>(request);
+      } catch (error) {
+        console.error("Database update failed during store deletion:", error);
+        throw error;
+      }
     }
   }
 }

@@ -36,7 +36,6 @@ export class Store<T = any> {
       await this.db.createStore(this.name, this.schema);
       this.isInitialized = true;
     } catch (error) {
-      console.error(`Error setting up store ${this.name}:`, error);
       throw error;
     }
   }
@@ -63,10 +62,6 @@ export class Store<T = any> {
       const request = store.get(key);
       return idbRequestToPromise<T | null>(request);
     } catch (error) {
-      console.error(
-        `Error getting item ${key} from store ${this.name}:`,
-        error
-      );
       this.emit("error", error);
       return null;
     }
@@ -92,7 +87,6 @@ export class Store<T = any> {
         request.onerror = () => reject(request.error);
       });
     } catch (error) {
-      console.error(`Error getting all items from store ${this.name}:`, error);
       this.emit("error", error);
       return {};
     }
@@ -106,7 +100,6 @@ export class Store<T = any> {
       this.emit("change", { add: { key, value } });
       return result;
     } catch (error) {
-      console.error(`Error setting item ${key} in store ${this.name}:`, error);
       this.emit("error", error);
       throw error;
     }
@@ -120,13 +113,10 @@ export class Store<T = any> {
       this.emit("change", { addOrUpdate: { key, value } });
       return result;
     } catch (error) {
-      console.error(
-        `Error adding or updating item ${key} in store ${this.name}:`,
-        error
-      );
       throw error;
     }
   }
+
   async updateItem(key: string, value: Partial<T>): Promise<IDBValidKey> {
     try {
       const store = await this.getStore();
@@ -164,7 +154,6 @@ export class Store<T = any> {
         request.onerror = () => reject(request.error);
       });
     } catch (error) {
-      console.error(`Error updating item ${key} in store ${this.name}:`, error);
       this.emit("error", error);
       throw error;
     }
@@ -177,10 +166,6 @@ export class Store<T = any> {
       await idbRequestToPromise<void>(request);
       this.emit("change", { delete: { key } });
     } catch (error) {
-      console.error(
-        `Error deleting item ${key} from store ${this.name}:`,
-        error
-      );
       this.emit("error", error);
       throw error;
     }
@@ -225,7 +210,6 @@ export class Store<T = any> {
       store.clear();
       this.emit("change", { clear: true });
     } catch (error) {
-      console.error(`Error clearing store ${this.name}:`, error);
       this.emit("error", error);
       throw error;
     }
@@ -239,7 +223,6 @@ export class Store<T = any> {
       await this.db.deleteStore(this.name);
       this.emit("change", { destroy: true });
     } catch (error) {
-      console.error(`Error destroying store ${this.name}:`, error);
       this.emit("error", error);
       throw error;
     }
