@@ -1,7 +1,9 @@
 name: NPM Deployment
 
 on:
-  release: {}
+  push:
+    branches:
+      - master
 
 jobs:
   build:
