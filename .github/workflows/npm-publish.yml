@@ -1,8 +1,7 @@
 name: NPM Deployment
 
 on:
-  release:
-    types: [created]
+  release: {}
 
 jobs:
   build:
