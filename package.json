@@ -14,8 +14,8 @@
     "clean": "rimraf dist",
     "prepare": "npm run clean && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev:playground": "cd examples/playground && npm run dev",
-    "dev:both": "npm run dev & npm run dev:playground"
+    "dev:playground": "cd examples/playground && npm i && npm run dev",
+    "dev:all": "npm run dev & npm run dev:playground"
   },
   "peerDependencies": {
     "react": "^18.0.0"
