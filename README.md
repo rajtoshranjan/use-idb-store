@@ -17,9 +17,7 @@ A React hook that provides persistent state management using IndexedDB, offering
 - 🧩 **Zero Dependencies:** Lightweight with no external dependencies
 - 🌐 **Global Store Behavior:** When you use the same store name across different components, they all share the same store instance and data
 
-## Demo
-
-- [TODO App](https://codesandbox.io/p/sandbox/ld66h7)
+## [Demo App](https://use-idb-store.rajtoshranjan.dev/#demo)
 
 ## Installation
 
