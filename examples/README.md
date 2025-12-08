@@ -42,7 +42,7 @@ This structure allows for additional examples:
 examples/
 ├── playground/           # Development playground
 │   ├── src/
-│   │   ├── App.tsx      # Main playground component
+│   │   ├── app.tsx      # Main playground component
 │   │   └── ...
 │   ├── package.json     # Playground dependencies
 │   └── vite.config.ts   # Vite configuration
