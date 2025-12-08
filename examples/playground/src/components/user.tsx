@@ -7,7 +7,6 @@ export function UserSection() {
   const [userEmail, setUserEmail] = useState("");
   const [userAge, setUserAge] = useState(25);
 
-  // Test the hook with users
   const {
     values: users,
     mutations: userMutations,
@@ -38,12 +37,17 @@ export function UserSection() {
     Object.keys(users).forEach((id) => userMutations.deleteValue(id));
   };
 
+  const userCount = Object.keys(users).length;
+
   if (usersLoading) {
     return (
-      <div>
-        <h2>👥 Users (Loading...)</h2>
-        <div style={{ padding: "20px", color: "#666", fontStyle: "italic" }}>
-          Loading users...
+      <div className="demo-card">
+        <div className="demo-header">
+          <h2>User Directory</h2>
+        </div>
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading directory...</p>
         </div>
       </div>
     );
@@ -51,33 +55,37 @@ export function UserSection() {
 
   if (usersError) {
     return (
-      <div>
-        <h2>👥 Users (Error)</h2>
-        <div style={{ padding: "20px", color: "red" }}>
-          Error loading users: {usersError.message}
+      <div className="demo-card">
+        <div className="demo-header">
+          <h2>User Directory</h2>
+        </div>
+        <div className="error-state">
+          <strong>Error loading users:</strong>
+          <p>{usersError.message}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2>👥 Users ({Object.keys(users).length})</h2>
+    <div className="demo-card">
+      <div className="demo-header">
+        <h2>User Directory</h2>
+        <span className="demo-count">{userCount}</span>
+      </div>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div className="input-group">
         <input
           type="text"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
-          placeholder="Name"
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+          placeholder="Full Name"
         />
         <input
           type="email"
           value={userEmail}
           onChange={(e) => setUserEmail(e.target.value)}
-          placeholder="Email"
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+          placeholder="email@example.com"
         />
         <input
           type="number"
@@ -86,63 +94,48 @@ export function UserSection() {
           placeholder="Age"
           min="1"
           max="120"
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
         />
-        <button onClick={addUser} style={{ marginRight: "10px" }}>
-          Add User
-        </button>
-        <button
-          onClick={clearAllUsers}
-          style={{ background: "#dc3545", color: "white" }}
-        >
-          Clear All
-        </button>
+        <div className="button-group">
+          <button
+            onClick={addUser}
+            disabled={!userName.trim() || !userEmail.trim()}
+          >
+            Add User
+          </button>
+          <button
+            onClick={clearAllUsers}
+            className="secondary"
+            disabled={userCount === 0}
+          >
+            Clear All
+          </button>
+        </div>
       </div>
 
-      <div>
-        {Object.values(users).map((user) => (
-          <div
-            key={user.id}
-            style={{
-              padding: "15px",
-              border: "1px solid #ccc",
-              marginBottom: "10px",
-              borderRadius: "5px",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "start",
-              }}
-            >
-              <div>
-                <h4 style={{ margin: "0 0 5px 0" }}>{user.name}</h4>
-                <p style={{ margin: "0 0 5px 0", color: "#666" }}>
-                  {user.email}
-                </p>
-                <p style={{ margin: "0", color: "#888", fontSize: "14px" }}>
-                  Age: {user.age}
-                </p>
-              </div>
-              <button
-                onClick={() => deleteUser(user.id)}
-                style={{
-                  background: "#dc3545",
-                  color: "white",
-                  padding: "4px 8px",
-                }}
-              >
-                Delete
-              </button>
-            </div>
+      <div className="items-list">
+        {userCount === 0 ? (
+          <div className="empty-state">
+            <p>Directory is empty. Add your first user profile above!</p>
           </div>
-        ))}
-        {Object.keys(users).length === 0 && (
-          <p style={{ color: "#666", fontStyle: "italic" }}>
-            No users yet. Add some!
-          </p>
+        ) : (
+          Object.values(users).map((user) => (
+            <div key={user.id} className="user-item">
+              <div className="user-content">
+                <div className="user-info">
+                  <h4>{user.name}</h4>
+                  <div className="user-email">{user.email}</div>
+                  <div className="user-age">Age: {user.age}</div>
+                </div>
+                <button
+                  onClick={() => deleteUser(user.id)}
+                  className="danger small icon-button"
+                  title="Delete user"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          ))
         )}
       </div>
     </div>

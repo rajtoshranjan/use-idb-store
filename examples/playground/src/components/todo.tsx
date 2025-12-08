@@ -5,7 +5,6 @@ import type { Todo } from "./types";
 export function TodoSection() {
   const [todoText, setTodoText] = useState("");
 
-  // Test the hook with todos
   const {
     values: todos,
     mutations: todoMutations,
@@ -41,12 +40,18 @@ export function TodoSection() {
     Object.keys(todos).forEach((id) => todoMutations.deleteValue(id));
   };
 
+  const todoCount = Object.keys(todos).length;
+  const completedCount = Object.values(todos).filter((t) => t.completed).length;
+
   if (todosLoading) {
     return (
-      <div>
-        <h2>📝 Todos (Loading...)</h2>
-        <div style={{ padding: "20px", color: "#666", fontStyle: "italic" }}>
-          Loading todos...
+      <div className="demo-card">
+        <div className="demo-header">
+          <h2>Todo List</h2>
+        </div>
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading your todos...</p>
         </div>
       </div>
     );
@@ -54,81 +59,83 @@ export function TodoSection() {
 
   if (todosError) {
     return (
-      <div>
-        <h2>📝 Todos (Error)</h2>
-        <div style={{ padding: "20px", color: "red" }}>
-          Error loading todos: {todosError.message}
+      <div className="demo-card">
+        <div className="demo-header">
+          <h2>Todo List</h2>
+        </div>
+        <div className="error-state">
+          <strong>Error loading todos:</strong>
+          <p>{todosError.message}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2>📝 Todos ({Object.keys(todos).length})</h2>
+    <div className="demo-card">
+      <div className="demo-header">
+        <h2>Todo List</h2>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
+          <span className="demo-count">
+            {completedCount}/{todoCount}
+          </span>
+        </div>
+      </div>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div className="input-group">
         <input
           type="text"
           value={todoText}
           onChange={(e) => setTodoText(e.target.value)}
-          placeholder="Enter a new todo..."
-          style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+          placeholder="Add a new task..."
           onKeyPress={(e) => e.key === "Enter" && addTodo()}
         />
-        <button onClick={addTodo} style={{ marginRight: "10px" }}>
-          Add Todo
-        </button>
-        <button
-          onClick={clearAllTodos}
-          style={{ background: "#dc3545", color: "white" }}
-        >
-          Clear All
-        </button>
+        <div className="button-group">
+          <button onClick={addTodo} disabled={!todoText.trim()}>
+            Add Todo
+          </button>
+          <button
+            onClick={clearAllTodos}
+            className="secondary"
+            disabled={todoCount === 0}
+          >
+            Clear All
+          </button>
+        </div>
       </div>
 
-      <div>
-        {Object.values(todos)
-          .sort((a, b) => b.createdAt - a.createdAt)
-          .map((todo) => (
-            <div
-              key={todo.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "10px",
-                border: "1px solid #ccc",
-                marginBottom: "5px",
-                textDecoration: todo.completed ? "line-through" : "none",
-                opacity: todo.completed ? 0.6 : 1,
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={todo.completed}
-                onChange={() => toggleTodo(todo.id)}
-                style={{ marginRight: "10px" }}
-              />
-              <span style={{ flex: 1 }}>{todo.text}</span>
-              <small style={{ marginRight: "10px", color: "#666" }}>
-                {new Date(todo.createdAt).toLocaleTimeString()}
-              </small>
-              <button
-                onClick={() => deleteTodo(todo.id)}
-                style={{
-                  background: "#dc3545",
-                  color: "white",
-                  padding: "4px 8px",
-                }}
+      <div className="items-list">
+        {todoCount === 0 ? (
+          <div className="empty-state">
+            <p>Your todo list is empty. Create your first task above!</p>
+          </div>
+        ) : (
+          Object.values(todos)
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .map((todo) => (
+              <div
+                key={todo.id}
+                className={`todo-item ${todo.completed ? "completed" : ""}`}
               >
-                Delete
-              </button>
-            </div>
-          ))}
-        {Object.keys(todos).length === 0 && (
-          <p style={{ color: "#666", fontStyle: "italic" }}>
-            No todos yet. Add some!
-          </p>
+                <input
+                  type="checkbox"
+                  className="todo-checkbox"
+                  checked={todo.completed}
+                  onChange={() => toggleTodo(todo.id)}
+                />
+                <span className="todo-text">{todo.text}</span>
+                <span className="todo-time">
+                  {new Date(todo.createdAt).toLocaleTimeString()}
+                </span>
+                <button
+                  onClick={() => deleteTodo(todo.id)}
+                  className="danger small icon-button"
+                  title="Delete todo"
+                >
+                  ×
+                </button>
+              </div>
+            ))
         )}
       </div>
     </div>
