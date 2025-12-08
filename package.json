@@ -43,7 +43,7 @@
   "bugs": {
     "url": "https://github.com/rajtoshranjan/use-idb-store/issues"
   },
-  "homepage": "https://github.com/rajtoshranjan/use-idb-store#readme",
+  "homepage": "https://use-idb-store.rajtoshranjan.dev",
   "sideEffects": false,
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.3",
