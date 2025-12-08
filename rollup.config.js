@@ -19,7 +19,7 @@ module.exports = {
       exports: "named",
     },
   ],
-  external: ["react"],
+  external: ["react", "react-dom", "react/jsx-runtime"],
   plugins: [
     resolve(),
     commonjs(),

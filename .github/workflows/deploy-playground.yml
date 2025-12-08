@@ -34,14 +34,16 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install root dependencies
-        run: npm ci
-
-      - name: Build library
-        run: npm run build
+      - name: Install and build library
+        run: |
+          npm ci
+          npm run build
 
       - name: Install playground dependencies
-        run: cd examples/playground && npm ci
+        run: |
+          cd examples/playground
+          rm -rf node_modules package-lock.json
+          npm install
 
       - name: Build playground
         run: cd examples/playground && npm run build
