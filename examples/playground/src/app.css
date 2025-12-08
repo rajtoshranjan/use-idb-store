@@ -103,6 +103,12 @@
   margin-bottom: var(--space-3xl);
 }
 
+#features,
+#quickstart,
+#demo {
+  scroll-margin-top: var(--space-xl);
+}
+
 .section-title {
   text-align: center;
   font-size: 2.5rem;

@@ -1,6 +1,7 @@
 export function HeroSection() {
   const scrollToDemo = () => {
-    const demoSection = document.querySelector(".demo-section");
+    window.history.pushState({}, "", "#demo");
+    const demoSection = document.getElementById("demo");
     demoSection?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -15,8 +16,8 @@ export function HeroSection() {
 
         <p className="hero-subtitle">
           Modern React state management with IndexedDB persistence. Build
-          offline-first apps with automatic data sync, type-safe operations,
-          and a developer-friendly API.
+          offline-first apps with automatic data sync, type-safe operations, and
+          a developer-friendly API.
         </p>
 
         <div className="hero-actions">

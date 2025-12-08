@@ -10,11 +10,15 @@ function App() {
       <HeroSection />
 
       <div className="container">
-        <FeaturesSection />
+        <div id="features">
+          <FeaturesSection />
+        </div>
 
-        <CodeExampleSection />
+        <div id="quickstart">
+          <CodeExampleSection />
+        </div>
 
-        <section className="demo-section">
+        <section id="demo" className="demo-section">
           <h2 className="section-title">Try It Live</h2>
           <p className="section-subtitle">
             Experience real-time persistence. All changes are instantly saved to
