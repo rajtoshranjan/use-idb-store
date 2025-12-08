@@ -27,8 +27,13 @@
   "keywords": [
     "react",
     "indexeddb",
+    "idb",
     "typescript",
-    "react-state"
+    "react-state",
+    "use-idb",
+    "offline storage",
+    "local persistence",
+    "react hook storage"
   ],
   "author": {
     "name": "Rajtosh Ranjan",
